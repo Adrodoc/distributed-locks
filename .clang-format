@@ -1,0 +1,7 @@
+---
+BasedOnStyle: Google
+
+AlignAfterOpenBracket: AlwaysBreak
+AlignTrailingComments: false
+AllowShortCaseLabelsOnASingleLine: true
+ColumnLimit: 100
