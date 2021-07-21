@@ -8,6 +8,7 @@
 #SBATCH --export=NONE
 #SBATCH --time=00:20:00
 module load slurm_setup
+module switch intel-mpi openmpi/4.0.4-intel19
 
 json_dir=reports/$commit-lrz-$partition/json
 mkdir -p $json_dir
