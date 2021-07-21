@@ -1,11 +1,9 @@
 #pragma once
 
 #include <mpi.h>
-#include <new>
 #include "Lock.cpp"
 #include "log.cpp"
 #include "mpi_utils/mpi_utils.cpp"
-#include "mpi_utils/Window.cpp"
 
 class McsLock : public Lock
 {

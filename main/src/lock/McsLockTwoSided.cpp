@@ -4,38 +4,43 @@
 #include "Lock.cpp"
 #include "log.cpp"
 #include "mpi_utils/mpi_utils.cpp"
-#include "mpi_utils/Window.cpp"
 
 class McsLockTwoSided : public Lock
 {
 private:
-    static constexpr MPI_Aint PADDING = 64;
-    enum
+    struct memory_layout
     {
-        next_disp = 0 * PADDING,
-        tail_disp = 1 * PADDING,
+        alignas(64) int next;
+        alignas(64) int tail;
     };
+    static constexpr MPI_Aint next_disp = offsetof(memory_layout, next);
+    static constexpr MPI_Aint tail_disp = offsetof(memory_layout, tail);
+
     const MPI_Comm comm;
     const int master_rank;
     const int rank;
-    const Window window;
-    int *lmem;
+    memory_layout *mem;
+    MPI_Win win;
 
 public:
     McsLockTwoSided(const McsLockTwoSided &) = delete;
     McsLockTwoSided(const MPI_Comm comm = MPI_COMM_WORLD, const int master_rank = 0)
         : comm{comm},
           master_rank{master_rank},
-          rank{get_rank(comm)},
-          window{(MPI_Aint)((rank == master_rank ? 2 : 1) * PADDING), comm}
+          rank{get_rank(comm)}
     {
         // log() << "entering McsLockTwoSided" << std::endl;
-        int flag;
-        MPI_Win_get_attr(window.win, MPI_WIN_BASE, &lmem, &flag);
-        window.lock_all();
+        MPI_Info info;
+        MPI_Info_create(&info);
+        MPI_Info_set(info, "accumulate_ordering", "none");
+        MPI_Info_set(info, "same_disp_unit", "true");
+        MPI_Info_set(info, "same_size", "true");
+        MPI_Win_allocate(sizeof(memory_layout), 1, info, comm, &mem, &win);
+
         if (rank == master_rank)
-            window.set(rank, tail_disp, -1);
-        window.flush_all();
+            mem->tail = -1;
+
+        MPI_Win_lock_all(0, win);
         MPI_Barrier(comm);
         // log() << "exiting McsLockTwoSided" << std::endl;
     }
@@ -43,28 +48,31 @@ public:
     ~McsLockTwoSided()
     {
         // log() << "entering ~McsLockTwoSided" << std::endl;
-        window.unlock_all();
+        MPI_Win_unlock_all(win);
         // log() << "exiting ~McsLockTwoSided" << std::endl;
     }
 
     void acquire()
     {
         // log() << "entering acquire()" << std::endl;
-        lmem[next_disp / sizeof(int)] = -1;
-        MPI_Win_sync(window.win);
+        mem->next = -1;
+        MPI_Win_sync(win);
 
         // log() << "finding predecessor" << std::endl;
-        int predecessor = window.swap(master_rank, tail_disp, rank);
+        int predecessor;
+        MPI_Fetch_and_op(&rank, &predecessor, MPI_INT,
+                         master_rank, tail_disp, MPI_REPLACE, win);
+        MPI_Win_flush(master_rank, win);
         if (predecessor != -1)
         {
             // log() << "notifying predecessor: " << predecessor << std::endl;
-            window.atomic_set(predecessor, next_disp, rank);
-            MPI_Win_flush(predecessor, window.win);
+            MPI_Put(&rank, 1, MPI_INT,
+                    predecessor, next_disp, 1, MPI_INT,
+                    win);
+            MPI_Win_flush(predecessor, win);
 
             // log() << "waiting for predecessor" << std::endl;
             MPI_Recv(0, 0, MPI_INT8_T, predecessor, 0, comm, MPI_STATUS_IGNORE);
-            // while (lmem[locked_disp / sizeof(int)])
-            //     window.flush_all();
         }
         // log() << "exiting acquire()" << std::endl;
     }
@@ -72,21 +80,25 @@ public:
     void release()
     {
         // log() << "entering release()" << std::endl;
-        int successor = lmem[next_disp / sizeof(int)];
+        int successor = mem->next;
         if (successor == -1)
         {
             // log() << "nulling tail" << std::endl;
-            if (window.compare_and_swap(master_rank, tail_disp, rank, -1))
+            int null_rank = -1;
+            int old_value;
+            MPI_Compare_and_swap(&null_rank, &rank, &old_value, MPI_INT,
+                                 master_rank, tail_disp, win);
+            MPI_Win_flush(master_rank, win);
+            if (old_value == rank)
             {
                 // log() << "exiting release()" << std::endl;
                 return;
             }
             // log() << "waiting for successor" << std::endl;
-            while ((successor = lmem[next_disp / sizeof(int)]) == -1)
-                window.flush_all();
+            while ((successor = mem->next) == -1)
+                MPI_Win_flush(rank, win);
         }
         // log() << "notifying successor: " << successor << std::endl;
-        // window.atomic_set(successor, locked_disp, 0);
         MPI_Ssend(0, 0, MPI_UINT8_T, successor, 0, comm);
         // log() << "exiting release()" << std::endl;
     }
