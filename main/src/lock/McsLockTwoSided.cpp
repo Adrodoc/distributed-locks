@@ -99,7 +99,7 @@ public:
             {
                 // Trigger MPI progress
                 int flag;
-                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, comm, &flag, MPI_STATUS_IGNORE);
                 MPI_Win_sync(win);
             }
         }

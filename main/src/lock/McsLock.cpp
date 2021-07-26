@@ -18,6 +18,7 @@ private:
     static constexpr MPI_Aint next_disp = offsetof(memory_layout, next);
     static constexpr MPI_Aint tail_disp = offsetof(memory_layout, tail);
 
+    const MPI_Comm comm;
     const int master_rank;
     const int rank;
     memory_layout *mem;
@@ -26,7 +27,8 @@ private:
 public:
     McsLock(const McsLock &) = delete;
     McsLock(const MPI_Comm comm = MPI_COMM_WORLD, const int master_rank = 0)
-        : master_rank{master_rank},
+        : comm{comm},
+          master_rank{master_rank},
           rank{get_rank(comm)}
     {
         // log() << "entering McsLock" << std::endl;
@@ -77,7 +79,7 @@ public:
             {
                 // Trigger MPI progress
                 int flag;
-                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, comm, &flag, MPI_STATUS_IGNORE);
                 MPI_Win_sync(win);
             }
         }
@@ -106,7 +108,7 @@ public:
             {
                 // Trigger MPI progress
                 int flag;
-                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, comm, &flag, MPI_STATUS_IGNORE);
                 MPI_Win_sync(win);
             }
         }
