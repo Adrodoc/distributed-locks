@@ -96,7 +96,12 @@ public:
             }
             // log() << "waiting for successor" << std::endl;
             while ((successor = mem->next) == -1)
-                MPI_Win_flush(rank, win);
+            {
+                // Trigger MPI progress
+                int flag;
+                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+                MPI_Win_sync(win);
+            }
         }
         // log() << "notifying successor: " << successor << std::endl;
         MPI_Ssend(0, 0, MPI_UINT8_T, successor, 0, comm);

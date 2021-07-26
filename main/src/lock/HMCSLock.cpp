@@ -28,6 +28,8 @@ class HMCSLock : public Lock
         THRESHOLD = 4,
         WRITER_THRESHOLD = 5
     };
+    MPI_Comm global_comm = MPI_COMM_WORLD;
+    MPI_Comm local_comm;
 
 public:
     HMCSLock(const HMCSLock &) = delete;
@@ -36,9 +38,6 @@ public:
     {
         MPI_Aint winsize;
         int temp_rank, local_size;
-        MPI_Comm local_comm;
-
-        MPI_Comm global_comm = MPI_COMM_WORLD;
         MPI_Comm_split_type(global_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &local_comm);
 
         MPI_Comm_rank(global_comm, &temp_rank);
@@ -112,7 +111,10 @@ public:
             /* Now spin on our local value "status" until we are given the lock. */
             do
             {
-                MPI_Win_flush_all(local_win);
+                // Trigger MPI progress
+                int flag;
+                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, local_comm, &flag, MPI_STATUS_IGNORE);
+                MPI_Win_sync(local_win);
             } while ((status = local_mem[STATUS]) == WAIT);
             if (status != ACQUIRE_GLOBAL)
             {
@@ -238,7 +240,10 @@ public:
 #endif
             do
             {
-                MPI_Win_flush_all(local_win);
+                // Trigger MPI progress
+                int flag;
+                MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, local_comm, &flag, MPI_STATUS_IGNORE);
+                MPI_Win_sync(local_win);
             } while ((local_successor = local_mem[NEXT]) == -1);
         }
 
