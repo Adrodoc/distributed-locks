@@ -104,7 +104,7 @@ public:
             }
         }
         // log() << "notifying successor: " << successor << std::endl;
-        MPI_Ssend(0, 0, MPI_UINT8_T, successor, 0, comm);
+        MPI_Send(0, 0, MPI_UINT8_T, successor, 0, comm);
         // log() << "exiting release()" << std::endl;
     }
 };
