@@ -16,6 +16,7 @@
 #include "lock/McsLockOwnWindow.cpp"
 #include "lock/McsLockTwoSided.cpp"
 #include "lock/McsLockTwoSidedSync.cpp"
+#include "lock/McsLockTwoSidedSync2.cpp"
 #include "lock/MpiWinLock.cpp"
 #include "lock/MyShuffleLock.cpp"
 #include "lock/ShflLock.cpp"
@@ -90,6 +91,7 @@ int main(int argc, char *argv[])
     // REGISTER_LOCK_BENCHMARKS(McsLockOwnWindow);
     REGISTER_LOCK_BENCHMARKS(McsLockTwoSided);
     REGISTER_LOCK_BENCHMARKS(McsLockTwoSidedSync);
+    REGISTER_LOCK_BENCHMARKS(McsLockTwoSidedSync2);
     // REGISTER_LOCK_BENCHMARKS(MpiWinLock);
     // REGISTER_LOCK_BENCHMARKS(MyShuffleLock);
     // REGISTER_LOCK_BENCHMARKS(ShflLock);
