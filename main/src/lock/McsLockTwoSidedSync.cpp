@@ -83,7 +83,7 @@ public:
             return;
         }
         // log() << "waiting for successor" << std::endl;
-        MPI_Recv(0, 0, MPI_INT8_T, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
+        MPI_Recv(0, 0, MPI_UINT8_T, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
 
         // log() << "exiting release()" << std::endl;
     }
