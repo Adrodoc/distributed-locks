@@ -72,7 +72,7 @@ public:
             MPI_Win_flush(predecessor, win);
 
             // log() << "waiting for predecessor" << std::endl;
-            MPI_Recv(0, 0, MPI_UINT8_T, predecessor, 0, comm, MPI_STATUS_IGNORE);
+            MPI_Recv(NULL, 0, MPI_UINT8_T, predecessor, 0, comm, MPI_STATUS_IGNORE);
         }
         // log() << "exiting acquire()" << std::endl;
     }
@@ -104,7 +104,7 @@ public:
             }
         }
         // log() << "notifying successor: " << successor << std::endl;
-        MPI_Send(0, 0, MPI_UINT8_T, successor, 0, comm);
+        MPI_Send(NULL, 0, MPI_UINT8_T, successor, 0, comm);
         // log() << "exiting release()" << std::endl;
     }
 };

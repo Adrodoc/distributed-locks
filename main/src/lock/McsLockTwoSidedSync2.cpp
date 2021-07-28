@@ -63,7 +63,7 @@ public:
         {
             // log() << "waiting for predecessor" << std::endl;
             MPI_Send(&rank, 1, MPI_INT, predecessor, 0, comm);
-            MPI_Recv(0, 0, MPI_UINT8_T, predecessor, 0, comm, MPI_STATUS_IGNORE);
+            MPI_Recv(NULL, 0, MPI_UINT8_T, predecessor, 0, comm, MPI_STATUS_IGNORE);
         }
         // log() << "exiting acquire()" << std::endl;
     }
@@ -86,7 +86,7 @@ public:
         // log() << "waiting for successor" << std::endl;
         int successor;
         MPI_Recv(&successor, 1, MPI_INT, MPI_ANY_SOURCE, 0, comm, MPI_STATUS_IGNORE);
-        MPI_Send(0, 0, MPI_UINT8_T, successor, 0, comm);
+        MPI_Send(NULL, 0, MPI_UINT8_T, successor, 0, comm);
 
         // log() << "exiting release()" << std::endl;
     }
