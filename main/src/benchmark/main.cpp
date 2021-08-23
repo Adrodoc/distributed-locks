@@ -1,7 +1,7 @@
 #include "NullReporter.cpp"
 #include "benchmarks.cpp"
 #include "lock/AdvancedMcsLock.cpp"
-#include "lock/CTktMcsLock.cpp"
+#include "lock/CohortLock.cpp"
 #include "lock/DMcsLock.cpp"
 #include "lock/DisableableTasLock.cpp"
 #include "lock/DisableableTtsLock.cpp"
@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
     MPI_Barrier(MPI_COMM_WORLD);
 
     // REGISTER_LOCK_BENCHMARKS(AdvancedMcsLock);
+    typedef CohortLock<TktLock, McsLockWithCohortDetection> CTktMcsLock;
     REGISTER_LOCK_BENCHMARKS(CTktMcsLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTasLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTtsLock);

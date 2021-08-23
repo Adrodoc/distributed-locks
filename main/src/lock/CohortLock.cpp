@@ -7,7 +7,8 @@
 #include "mpi_utils/mpi_utils.cpp"
 #include "TktLock.cpp"
 
-class CTktMcsLock : public Lock
+template <typename G, typename L>
+class CohortLock : public Lock
 {
 private:
     static constexpr uint8_t MAX_LOCAL_PASSES = 63;
@@ -24,19 +25,19 @@ private:
     memory_layout *mem;
     MPI_Win win;
 
-    TktLock global_lock;
-    McsLockWithCohortDetection local_lock;
+    G global_lock;
+    L local_lock;
 
 public:
-    CTktMcsLock(const CTktMcsLock &) = delete;
-    CTktMcsLock(const MPI_Comm comm = MPI_COMM_WORLD, const int master_rank = 0)
+    CohortLock(const CohortLock &) = delete;
+    CohortLock(const MPI_Comm comm = MPI_COMM_WORLD, const int master_rank = 0)
         : comm{comm},
           master_rank{master_rank},
           rank{get_rank(comm)},
           global_lock{comm, master_rank},
           local_lock{split_comm_shared(comm)}
     {
-        // log() << "entering CTktMcsLock" << std::endl;
+        // log() << "entering CohortLock" << std::endl;
         MPI_Aint size = (rank == master_rank ? 1 : 0) * sizeof(memory_layout);
         MPI_Info info;
         MPI_Info_create(&info);
@@ -48,15 +49,15 @@ public:
             mem->local_pass_cnt = 0;
 
         MPI_Win_lock_all(0, win);
-        // log() << "exiting CTktMcsLock" << std::endl;
+        // log() << "exiting CohortLock" << std::endl;
     }
 
-    ~CTktMcsLock()
+    ~CohortLock()
     {
-        // log() << "entering ~CTktMcsLock" << std::endl;
+        // log() << "entering ~CohortLock" << std::endl;
         MPI_Win_unlock_all(win);
         MPI_Win_free(&win);
-        // log() << "exiting ~CTktMcsLock" << std::endl;
+        // log() << "exiting ~CohortLock" << std::endl;
     }
 
     void acquire()
