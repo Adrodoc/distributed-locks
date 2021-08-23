@@ -91,6 +91,7 @@ public:
         {
             const uint8_t zero = 0;
             MPI_Put(&zero, 1, MPI_UINT8_T, master_rank, local_pass_cnt_disp, 1, MPI_UINT8_T, win);
+            MPI_Win_flush(master_rank, win);
             global_lock.release();
             local_lock.release_cd(false);
         }
