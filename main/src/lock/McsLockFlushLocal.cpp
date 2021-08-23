@@ -51,6 +51,7 @@ public:
     {
         // log() << "entering ~McsLockFlushLocal" << std::endl;
         MPI_Win_unlock_all(win);
+        MPI_Win_free(&win);
         // log() << "exiting ~McsLockFlushLocal" << std::endl;
     }
 

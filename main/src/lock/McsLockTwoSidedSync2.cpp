@@ -47,6 +47,7 @@ public:
     {
         // log() << "entering ~McsLockTwoSidedSync2" << std::endl;
         MPI_Win_unlock_all(win);
+        MPI_Win_free(&win);
         // log() << "exiting ~McsLockTwoSidedSync2" << std::endl;
     }
 
