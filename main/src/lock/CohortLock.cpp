@@ -81,9 +81,7 @@ public:
         // log() << "entering cohort release()" << std::endl;
         bool alone = local_lock.alone();
         // log() << "alone: " << alone << std::endl;
-        bool may_pass_local_ = may_pass_local();
-        // log() << "may_pass_local: " << may_pass_local_ << std::endl;
-        if (!alone && may_pass_local_)
+        if (!alone && may_pass_local())
         {
             local_lock.release_cd(true);
         }
