@@ -1,6 +1,7 @@
 #include "NullReporter.cpp"
 #include "benchmarks.cpp"
 #include "lock/AdvancedMcsLock.cpp"
+#include "lock/CTktMcsLock.cpp"
 #include "lock/DMcsLock.cpp"
 #include "lock/DisableableTasLock.cpp"
 #include "lock/DisableableTtsLock.cpp"
@@ -18,12 +19,14 @@
 #include "lock/McsLockTwoSided.cpp"
 #include "lock/McsLockTwoSidedSync.cpp"
 #include "lock/McsLockTwoSidedSync2.cpp"
+#include "lock/McsLockWithCohortDetection.cpp"
 #include "lock/MpiWinLock.cpp"
 #include "lock/MyShuffleLock.cpp"
 #include "lock/ShflLock.cpp"
 #include "lock/TasLock.cpp"
 #include "lock/TasLockOwnWindow.cpp"
 #include "lock/TasLockOwnWindowCas.cpp"
+#include "lock/TktLock.cpp"
 #include "lock/TtsLock.cpp"
 #include "lock/TtsLockOwnWindow.cpp"
 #include "lock/TtsLockOwnWindowCas.cpp"
@@ -77,13 +80,14 @@ int main(int argc, char *argv[])
     MPI_Barrier(MPI_COMM_WORLD);
 
     // REGISTER_LOCK_BENCHMARKS(AdvancedMcsLock);
+    REGISTER_LOCK_BENCHMARKS(CTktMcsLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTasLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTtsLock);
     // REGISTER_LOCK_BENCHMARKS(DMcsLock);
     // REGISTER_LOCK_BENCHMARKS(HMCSLock);
     // REGISTER_LOCK_BENCHMARKS(HybridLock);
     REGISTER_LOCK_BENCHMARKS(McsLock);
-    REGISTER_LOCK_BENCHMARKS(McsLockAccumulate);
+    // REGISTER_LOCK_BENCHMARKS(McsLockAccumulate);
     // REGISTER_LOCK_BENCHMARKS(McsLockBcl);
     // REGISTER_LOCK_BENCHMARKS(McsLockFlushEveryOperation);
     // REGISTER_LOCK_BENCHMARKS(McsLockFlushLocal);
@@ -94,12 +98,14 @@ int main(int argc, char *argv[])
     // REGISTER_LOCK_BENCHMARKS(McsLockTwoSided);
     // REGISTER_LOCK_BENCHMARKS(McsLockTwoSidedSync);
     // REGISTER_LOCK_BENCHMARKS(McsLockTwoSidedSync2);
+    // REGISTER_LOCK_BENCHMARKS(McsLockWithCohortDetection);
     // REGISTER_LOCK_BENCHMARKS(MpiWinLock);
     // REGISTER_LOCK_BENCHMARKS(MyShuffleLock);
     // REGISTER_LOCK_BENCHMARKS(ShflLock);
     // REGISTER_LOCK_BENCHMARKS(TasLock);
     // REGISTER_LOCK_BENCHMARKS(TasLockOwnWindow);
     // REGISTER_LOCK_BENCHMARKS(TasLockOwnWindowCas);
+    REGISTER_LOCK_BENCHMARKS(TktLock);
     // REGISTER_LOCK_BENCHMARKS(TtsLock);
     // REGISTER_LOCK_BENCHMARKS(TtsLockOwnWindow);
     // REGISTER_LOCK_BENCHMARKS(TtsLockOwnWindowCas);
