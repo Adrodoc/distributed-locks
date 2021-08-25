@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits.h>
 #include <mpi.h>
 #include "Lock.cpp"
 #include "log.cpp"
@@ -8,19 +9,18 @@
 class McsLockWithCohortDetection : public Lock
 {
 private:
-    enum release_state
+    enum status
     {
-        busy,
-        release_local,
-        release_global
+        ACQUIRE_GLOBAL = 0,
+        WAIT = INT_MAX,
     };
     struct memory_layout
     {
-        alignas(64) release_state locked;
+        alignas(64) int status;
         alignas(64) int next;
         alignas(64) int tail;
     };
-    static constexpr MPI_Aint locked_disp = offsetof(memory_layout, locked);
+    static constexpr MPI_Aint status_disp = offsetof(memory_layout, status);
     static constexpr MPI_Aint next_disp = offsetof(memory_layout, next);
     static constexpr MPI_Aint tail_disp = offsetof(memory_layout, tail);
 
@@ -68,10 +68,10 @@ public:
 
     void acquire() { acquire_cd(); }
 
-    bool acquire_cd()
+    int acquire_cd()
     {
         // log() << "entering acquire()" << std::endl;
-        mem->locked = busy;
+        mem->status = WAIT;
         mem->next = -1;
         MPI_Win_sync(win);
 
@@ -89,21 +89,23 @@ public:
             MPI_Win_flush(predecessor, win);
 
             // log() << "waiting for predecessor" << std::endl;
-            while (mem->locked == busy)
+            int curStatus;
+            while ((curStatus = mem->status) == WAIT)
             {
                 // Trigger MPI progress
                 int flag;
                 MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, comm, &flag, MPI_STATUS_IGNORE);
                 MPI_Win_sync(win);
             }
+            return curStatus;
         }
         // log() << "exiting acquire()" << std::endl;
-        return predecessor != -1 && mem->locked == release_local;
+        return ACQUIRE_GLOBAL;
     }
 
     void release() { release_cd(false); }
 
-    void release_cd(bool local)
+    void release_cd(int status)
     {
         // log() << "entering release()" << std::endl;
         int successor = mem->next;
@@ -130,9 +132,8 @@ public:
             }
         }
         // log() << "notifying successor: " << successor << std::endl;
-        uint8_t release_state = local ? release_local : release_global;
-        MPI_Put(&release_state, 1, MPI_UINT8_T,
-                successor, locked_disp, 1, MPI_UINT8_T,
+        MPI_Put(&status, 1, MPI_INT,
+                successor, status_disp, 1, MPI_INT,
                 win);
         MPI_Win_flush(successor, win);
         // log() << "exiting release()" << std::endl;

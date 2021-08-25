@@ -1,6 +1,7 @@
 #include "NullReporter.cpp"
 #include "benchmarks.cpp"
 #include "lock/AdvancedMcsLock.cpp"
+#include "lock/CTktMcsLockOptimizedCounter.cpp"
 #include "lock/CohortLock.cpp"
 #include "lock/DMcsLock.cpp"
 #include "lock/DisableableTasLock.cpp"
@@ -80,12 +81,13 @@ int main(int argc, char *argv[])
     MPI_Barrier(MPI_COMM_WORLD);
 
     // REGISTER_LOCK_BENCHMARKS(AdvancedMcsLock);
+    REGISTER_LOCK_BENCHMARKS(CTktMcsLockOptimizedCounter);
     typedef CohortLock<TktLock, McsLockWithCohortDetection> CTktMcsLock;
     REGISTER_LOCK_BENCHMARKS(CTktMcsLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTasLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTtsLock);
     // REGISTER_LOCK_BENCHMARKS(DMcsLock);
-    // REGISTER_LOCK_BENCHMARKS(HMCSLock);
+    REGISTER_LOCK_BENCHMARKS(HMCSLock);
     // REGISTER_LOCK_BENCHMARKS(HybridLock);
     REGISTER_LOCK_BENCHMARKS(McsLock);
     // REGISTER_LOCK_BENCHMARKS(McsLockAccumulate);
@@ -106,7 +108,7 @@ int main(int argc, char *argv[])
     // REGISTER_LOCK_BENCHMARKS(TasLock);
     // REGISTER_LOCK_BENCHMARKS(TasLockOwnWindow);
     // REGISTER_LOCK_BENCHMARKS(TasLockOwnWindowCas);
-    REGISTER_LOCK_BENCHMARKS(TktLock);
+    // REGISTER_LOCK_BENCHMARKS(TktLock);
     // REGISTER_LOCK_BENCHMARKS(TtsLock);
     // REGISTER_LOCK_BENCHMARKS(TtsLockOwnWindow);
     // REGISTER_LOCK_BENCHMARKS(TtsLockOwnWindowCas);
