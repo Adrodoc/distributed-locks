@@ -132,9 +132,9 @@ public:
             }
         }
         // log() << "notifying successor: " << successor << std::endl;
-        MPI_Put(&status, 1, MPI_INT,
-                successor, status_disp, 1, MPI_INT,
-                win);
+        MPI_Accumulate(&status, 1, MPI_INT,
+                       successor, status_disp, 1, MPI_INT,
+                       MPI_REPLACE, win);
         MPI_Win_flush(successor, win);
         // log() << "exiting release()" << std::endl;
     }

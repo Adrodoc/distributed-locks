@@ -70,6 +70,7 @@ public:
         }
         else
         {
+            // log() << "global release after " << status << " local passes" << std::endl;
             global_lock.release();
             local_lock.release_cd(ACQUIRE_GLOBAL);
         }
