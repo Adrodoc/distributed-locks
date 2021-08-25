@@ -2,6 +2,7 @@
 #include "benchmarks.cpp"
 #include "lock/AdvancedMcsLock.cpp"
 #include "lock/CTktMcsLockOptimizedCounter.cpp"
+#include "lock/CTktMcsLockTwoSided.cpp"
 #include "lock/CohortLock.cpp"
 #include "lock/DMcsLock.cpp"
 #include "lock/DisableableTasLock.cpp"
@@ -21,6 +22,7 @@
 #include "lock/McsLockTwoSided.cpp"
 #include "lock/McsLockTwoSidedSync.cpp"
 #include "lock/McsLockTwoSidedSync2.cpp"
+#include "lock/McsLockTwoSidedWithCohortDetection.cpp"
 #include "lock/McsLockWithCohortDetection.cpp"
 #include "lock/MpiWinLock.cpp"
 #include "lock/MyShuffleLock.cpp"
@@ -83,6 +85,7 @@ int main(int argc, char *argv[])
 
     // REGISTER_LOCK_BENCHMARKS(AdvancedMcsLock);
     REGISTER_LOCK_BENCHMARKS(CTktMcsLockOptimizedCounter);
+    REGISTER_LOCK_BENCHMARKS(CTktMcsLockTwoSided);
     // typedef CohortLock<TktLock, McsLockWithCohortDetection> CTktMcsLock;
     // REGISTER_LOCK_BENCHMARKS(CTktMcsLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTasLock);
@@ -103,6 +106,7 @@ int main(int argc, char *argv[])
     // REGISTER_LOCK_BENCHMARKS(McsLockTwoSided);
     // REGISTER_LOCK_BENCHMARKS(McsLockTwoSidedSync);
     // REGISTER_LOCK_BENCHMARKS(McsLockTwoSidedSync2);
+    // REGISTER_LOCK_BENCHMARKS(McsLockTwoSidedWithCohortDetection);
     // REGISTER_LOCK_BENCHMARKS(McsLockWithCohortDetection);
     // REGISTER_LOCK_BENCHMARKS(MpiWinLock);
     // REGISTER_LOCK_BENCHMARKS(MyShuffleLock);
