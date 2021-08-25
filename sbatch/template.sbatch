@@ -6,7 +6,7 @@
 #SBATCH --nodes=$nodes
 #SBATCH --ntasks-per-node=$ntasks-per-node
 #SBATCH --export=NONE
-#SBATCH --time=00:20:00
+#SBATCH --time=00:10:00
 module load slurm_setup
 
 json_dir=reports/$commit-lrz-$partition/json
