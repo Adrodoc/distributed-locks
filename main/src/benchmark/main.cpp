@@ -7,6 +7,7 @@
 #include "lock/DisableableTasLock.cpp"
 #include "lock/DisableableTtsLock.cpp"
 #include "lock/HMCSLock.cpp"
+#include "lock/HMcsLockSharedGlobalNodes.cpp"
 #include "lock/HybridLock.cpp"
 #include "lock/McsLock.cpp"
 #include "lock/McsLockAccumulate.cpp"
@@ -82,12 +83,13 @@ int main(int argc, char *argv[])
 
     // REGISTER_LOCK_BENCHMARKS(AdvancedMcsLock);
     REGISTER_LOCK_BENCHMARKS(CTktMcsLockOptimizedCounter);
-    typedef CohortLock<TktLock, McsLockWithCohortDetection> CTktMcsLock;
-    REGISTER_LOCK_BENCHMARKS(CTktMcsLock);
+    // typedef CohortLock<TktLock, McsLockWithCohortDetection> CTktMcsLock;
+    // REGISTER_LOCK_BENCHMARKS(CTktMcsLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTasLock);
     // REGISTER_LOCK_BENCHMARKS(DisableableTtsLock);
     // REGISTER_LOCK_BENCHMARKS(DMcsLock);
     REGISTER_LOCK_BENCHMARKS(HMCSLock);
+    REGISTER_LOCK_BENCHMARKS(HMcsLockSharedGlobalNodes);
     // REGISTER_LOCK_BENCHMARKS(HybridLock);
     REGISTER_LOCK_BENCHMARKS(McsLock);
     // REGISTER_LOCK_BENCHMARKS(McsLockAccumulate);
